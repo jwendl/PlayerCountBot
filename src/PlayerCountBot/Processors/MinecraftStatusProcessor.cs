@@ -1,8 +1,8 @@
 ﻿using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PlayerCountBot.Clients;
-using PlayerCountBot.Models.Minecraft;
+using PlayerCountBot.Clients.Minecraft;
+using PlayerCountBot.Clients.Minecraft.Models;
 using PlayerCountBot.Settings;
 using System.Text.RegularExpressions;
 
@@ -31,7 +31,7 @@ namespace PlayerCountBot.Processors
             var minecraftClient = new MinecraftClient(_minecraftSettings?.IpAddress!, _minecraftSettings?.Port ?? 0);
             if (!minecraftClient.Authenticate(_minecraftSettings?.RconPassword ?? string.Empty))
             {
-                _logger.LogError("Couldn't login to Minecraft RCON");
+                _logger.LogError("[MinecraftStatusProcessor] Couldn't login to Minecraft RCON");
 
                 var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
                 var guildChannel = guild.GetChannel(channel.Id);
@@ -44,7 +44,7 @@ namespace PlayerCountBot.Processors
             {
                 if (!minecraftClient.SendCommand("list", out MinecraftMessage minecraftMessage))
                 {
-                    _logger.LogError("Couldn't send 'list' command to Minecraft RCON");
+                    _logger.LogError("[MinecraftStatusProcessor] Couldn't send 'list' command to Minecraft RCON");
 
                     var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
                     var guildChannel = guild.GetChannel(channel.Id);

@@ -1,4 +1,4 @@
-﻿namespace PlayerCountBot.Models.Minecraft
+﻿namespace PlayerCountBot.Clients.Minecraft.Models
 {
     public readonly struct MinecraftMessage
     {

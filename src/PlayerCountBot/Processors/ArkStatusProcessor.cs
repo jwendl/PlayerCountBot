@@ -33,7 +33,7 @@ namespace PlayerCountBot.Processors
             var authenticated = await arkClient.AuthenticateAsync(_arkSettings.RconPassword);
             if (!authenticated)
             {
-                _logger.LogError("Couldn't login to Ark RCON");
+                _logger.LogError("[ArkStatusProcessor] Couldn't login to Ark RCON");
 
                 var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
                 var guildChannel = guild.GetChannel(channel.Id);
@@ -46,8 +46,8 @@ namespace PlayerCountBot.Processors
             {
                 var currentPlayers = 0;
                 var maxPlayers = 70;
-                var listPlayers = await arkClient.ExecuteCommandAsync("listplayers");
-                if (listPlayers.Contains("No Players Connected"))
+                var listPlayersResponse = await arkClient.ExecuteCommandAsync("listplayers");
+                if (listPlayersResponse.Contains("No Players Connected"))
                 {
                     var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
                     var guildChannel = guild.GetChannel(channel.Id);
@@ -58,7 +58,7 @@ namespace PlayerCountBot.Processors
                 }
                 else
                 {
-                    var lines = listPlayers.Split('\n');
+                    var lines = listPlayersResponse.Split('\n');
                     currentPlayers = lines.Length - 2;
                     if (currentPlayers < 0) currentPlayers = 0;
 

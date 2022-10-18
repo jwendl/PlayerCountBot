@@ -33,7 +33,7 @@ namespace PlayerCountBot.Processors
             var authenticated = await conanClient.AuthenticateAsync(_conanSettings.RconPassword);
             if (!authenticated)
             {
-                _logger.LogError("Couldn't login to Conan RCON");
+                _logger.LogError("[ConanStatusProcessor] Couldn't login to Conan RCON");
 
                 var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
                 var guildChannel = guild.GetChannel(channel.Id);
@@ -46,8 +46,8 @@ namespace PlayerCountBot.Processors
             {
                 var currentPlayers = 0;
                 var maxPlayers = 70;
-                var listPlayers = await conanClient.ExecuteCommandAsync("listplayers");
-                var lines = listPlayers.Split('\n');
+                var listPlayersResponse = await conanClient.ExecuteCommandAsync("listplayers");
+                var lines = listPlayersResponse.Split('\n');
                 if (lines.Length == 2)
                 {
                     var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PlayerCountBot;
+using PlayerCountBot.Clients.Rust;
 using PlayerCountBot.Processors;
 using PlayerCountBot.Settings;
 using Timer = System.Timers.Timer;
@@ -14,10 +15,13 @@ var configuration = new ConfigurationBuilder()
     .Build();
 
 var serviceCollection = new ServiceCollection();
+serviceCollection.AddSingleton<IRustClient, RustClient>();
+
 serviceCollection.AddSingleton<IGameServerBot, GameServerBot>();
 serviceCollection.AddSingleton<IMinecraftStatusProcessor, MinecraftStatusProcessor>();
-serviceCollection.AddSingleton<IArkStatusProcessor, ArkStatusProcessor>();
 serviceCollection.AddSingleton<IConanStatusProcessor, ConanStatusProcessor>();
+serviceCollection.AddSingleton<IRustStatusProcessor, RustStatusProcessor>();
+serviceCollection.AddSingleton<IArkStatusProcessor, ArkStatusProcessor>();
 
 serviceCollection.AddLogging(builder =>
 {

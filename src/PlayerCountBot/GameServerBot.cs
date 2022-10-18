@@ -19,25 +19,25 @@ namespace PlayerCountBot
     {
         private readonly DiscordSocketClient _discordSocketClient;
         private readonly DiscordSettings _discordSettings;
-        private readonly RustSettings _rustSettings;
         private readonly IMinecraftStatusProcessor _minecraftStatusProcessor;
         private readonly IConanStatusProcessor _conanStatusProcessor;
+        private readonly IRustStatusProcessor _rustStatusProcessor;
         private readonly IArkStatusProcessor _arkStatusProcessor;
         private readonly ILogger<GameServerBot> _logger;
 
         public GameServerBot(
             IOptions<DiscordSettings> discordOptions,
-            IOptions<RustSettings> rustOptions,
             IMinecraftStatusProcessor minecraftStatusProcessor,
             IConanStatusProcessor conanStatusProcessor,
+            IRustStatusProcessor rustStatusProcessor,
             IArkStatusProcessor arkStatusProcessor,
             ILogger<GameServerBot> logger)
         {
             _discordSocketClient = new DiscordSocketClient();
             _discordSettings = discordOptions.Value;
-            _rustSettings = rustOptions.Value;
             _minecraftStatusProcessor = minecraftStatusProcessor;
             _conanStatusProcessor = conanStatusProcessor;
+            _rustStatusProcessor = rustStatusProcessor;
             _arkStatusProcessor = arkStatusProcessor;
             _logger = logger;
         }
@@ -71,13 +71,9 @@ namespace PlayerCountBot
                 await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Conan");
                 await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Rust");
 
-                //await UpdateChannelStatusAsync(guild, "MAG Minecraft", _minecraftSettings?.IpAddress!, _minecraftSettings?.Port ?? (ushort)0, ServerQuery.ServerType.Minecraft);
-                //await UpdateChannelStatusAsync(guild, "MAG Ark", _arkSettings?.IpAddress!, _arkSettings?.Port ?? (ushort)0, ServerQuery.ServerType.Source);
-                //await UpdateChannelStatusAsync(guild, "MAG Conan", _conanSettings?.IpAddress!, _minecraftSettings?.Port ?? (ushort)0, ServerQuery.ServerType.Source);
-                //await UpdateChannelStatusAsync(guild, "MAG Rust", _rustSettings?.IpAddress!, _rustSettings?.Port ?? (ushort)0, ServerQuery.ServerType.Source);
-
                 await _minecraftStatusProcessor.ProcessStatusAsync(guild);
                 await _conanStatusProcessor.ProcessStatusAsync(guild);
+                await _rustStatusProcessor.ProcessStatusAsync(guild);
                 await _arkStatusProcessor.ProcessStatusAsync(guild);
             }
         }

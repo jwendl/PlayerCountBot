@@ -1,4 +1,4 @@
-﻿using PlayerCountBot.Models.Minecraft;
+﻿using PlayerCountBot.Clients.Minecraft.Models;
 using System.Text;
 
 namespace PlayerCountBot.Encoders

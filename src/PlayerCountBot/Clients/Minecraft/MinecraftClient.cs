@@ -1,8 +1,8 @@
-﻿using PlayerCountBot.Encoders;
-using PlayerCountBot.Models.Minecraft;
+﻿using PlayerCountBot.Clients.Minecraft.Models;
+using PlayerCountBot.Encoders;
 using System.Net.Sockets;
 
-namespace PlayerCountBot.Clients
+namespace PlayerCountBot.Clients.Minecraft
 {
     class MinecraftClient
         : IDisposable
@@ -21,7 +21,7 @@ namespace PlayerCountBot.Clients
 
         public void Dispose()
         {
-            this.Close();
+            Close();
         }
 
         public void Close()
