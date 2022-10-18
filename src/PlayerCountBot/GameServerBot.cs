@@ -55,29 +55,31 @@ namespace PlayerCountBot
         {
             if (_discordSocketClient.ConnectionState == ConnectionState.Connected && _discordSocketClient.LoginState == LoginState.LoggedIn)
             {
-                var guild = _discordSocketClient.Guilds.First();
-                _logger.LogInformation("Using guild {Name} with Id {Id}", guild.Name, guild.Id);
+                var guild = _discordSocketClient.Guilds.Where(g => g.Name == "Middle Aged Gaming").FirstOrDefault();
+                if (guild != null) {
+                    _logger.LogInformation("Using guild {Name} with Id {Id}", guild.Name, guild.Id);
 
-                var categoryChannel = guild.CategoryChannels.Where(scc => scc.Name.Contains("MAG Servers", StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-                _logger.LogInformation("Checking to see if category named {Name} exists", categoryChannel?.Name);
+                    var categoryChannel = guild.CategoryChannels.Where(scc => scc.Name.Contains("MAG Servers", StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                    _logger.LogInformation("Checking to see if category named {Name} exists", categoryChannel?.Name);
 
-                if (categoryChannel == null)
-                {
-                    var createdCategoryChannel = await guild.CreateCategoryChannelAsync("MAG Servers");
+                    if (categoryChannel == null)
+                    {
+                        var createdCategoryChannel = await guild.CreateCategoryChannelAsync("MAG Servers");
 
-                    _logger.LogInformation($"Created category MAG Servers");
+                        _logger.LogInformation($"Created category MAG Servers");
+                    }
+                    categoryChannel = guild.CategoryChannels.Where(scc => scc.Name.Contains("MAG Servers", StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+
+                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Minecraft");
+                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Ark");
+                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Conan");
+                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Rust");
+
+                    await _minecraftStatusProcessor.ProcessStatusAsync(guild);
+                    await _conanStatusProcessor.ProcessStatusAsync(guild);
+                    await _rustStatusProcessor.ProcessStatusAsync(guild);
+                    await _arkStatusProcessor.ProcessStatusAsync(guild);
                 }
-                categoryChannel = guild.CategoryChannels.Where(scc => scc.Name.Contains("MAG Servers", StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-
-                await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Minecraft");
-                await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Ark");
-                await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Conan");
-                await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Rust");
-
-                await _minecraftStatusProcessor.ProcessStatusAsync(guild);
-                await _conanStatusProcessor.ProcessStatusAsync(guild);
-                await _rustStatusProcessor.ProcessStatusAsync(guild);
-                await _arkStatusProcessor.ProcessStatusAsync(guild);
             }
         }
 
