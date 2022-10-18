@@ -15,11 +15,13 @@ namespace PlayerCountBot.Processors
     public class RustStatusProcessor
         : IRustStatusProcessor
     {
+        private readonly ILogger<RustStatusProcessor> _logger;
         private readonly RustSettings _rustSettings;
         private readonly IRustClient _rustClient;
 
-        public RustStatusProcessor(IRustClient rustClient, IOptions<RustSettings> rustOptions)
+        public RustStatusProcessor(ILogger<RustStatusProcessor> logger,IRustClient rustClient, IOptions<RustSettings> rustOptions)
         {
+            _logger = logger;
             _rustClient = rustClient;
             _rustSettings = rustOptions.Value;
         }
@@ -27,8 +29,9 @@ namespace PlayerCountBot.Processors
         public async Task ProcessStatusAsync(SocketGuild guild)
         {
             var channelName = "MAG Rust";
+            _logger.LogInformation("Running processor for {Name}", channelName);
 
-            _rustClient.Connect(_rustSettings.IpAddress!, _rustSettings.Port ?? 0, _rustSettings.RconPassword!);
+            _rustClient.Connect(_rustSettings.IpAddress!, _rustSettings.Port, _rustSettings.RconPassword!);
 
             _rustClient.SendCommand(new GetServerInformation(async (serverInfo) =>
             {

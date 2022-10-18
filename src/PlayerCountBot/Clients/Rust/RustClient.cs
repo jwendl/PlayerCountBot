@@ -23,10 +23,6 @@ namespace PlayerCountBot.Clients.Rust
         private readonly List<BaseCommand> _commands;
         private readonly ILogger<RustClient> _logger;
 
-        public event Action<ConsoleMessage> OnConsoleMessage;
-        public event Action<ChatMessage> OnChatMessage;
-        public event Action<bool> OnConnectionChanged;
-
         public RustClient(ILogger<RustClient> logger)
         {
             _logger = logger;
@@ -182,5 +178,9 @@ namespace PlayerCountBot.Clients.Rust
 
             GC.SuppressFinalize(this);
         }
+
+        public event Action<ConsoleMessage> OnConsoleMessage;
+        public event Action<ChatMessage> OnChatMessage;
+        public event Action<bool> OnConnectionChanged;
     }
 }

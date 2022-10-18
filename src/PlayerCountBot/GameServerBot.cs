@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PlayerCountBot.Clients.Rust.Commands.Messages;
 using PlayerCountBot.Processors;
 using PlayerCountBot.Settings;
 using System.Timers;
@@ -52,24 +53,26 @@ namespace PlayerCountBot
 
         public async void PollInterval(object? sender, ElapsedEventArgs elapsedEventArgs)
         {
-            if (_discordSocketClient.ConnectionState == ConnectionState.Connected)
+            if (_discordSocketClient.ConnectionState == ConnectionState.Connected && _discordSocketClient.LoginState == LoginState.LoggedIn)
             {
                 var guild = _discordSocketClient.Guilds.First();
-                var categoryChannel = guild.CategoryChannels.Where(scc => scc.Name.Contains("Game Servers")).FirstOrDefault();
+                _logger.LogInformation("Using guild {Name} with Id {Id}", guild.Name, guild.Id);
+
+                var categoryChannel = guild.CategoryChannels.Where(scc => scc.Name.Contains("MAG Servers", StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                _logger.LogInformation("Checking to see if category named {Name} exists", categoryChannel?.Name);
+
                 if (categoryChannel == null)
                 {
-                    _logger.LogInformation($"Creating category Game Servers");
+                    var createdCategoryChannel = await guild.CreateCategoryChannelAsync("MAG Servers");
 
-                    var createdCategoryChannel = await guild.CreateCategoryChannelAsync("Game Servers");
-
-                    _logger.LogInformation($"Created category Game Servers");
+                    _logger.LogInformation($"Created category MAG Servers");
                 }
-                categoryChannel = guild.CategoryChannels.Where(scc => scc.Name.Contains("Game Servers")).FirstOrDefault();
+                categoryChannel = guild.CategoryChannels.Where(scc => scc.Name.Contains("MAG Servers", StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
-                await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Minecraft");
-                await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Ark");
-                await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Conan");
-                await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Rust");
+                await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Minecraft");
+                await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Ark");
+                await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Conan");
+                await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Rust");
 
                 await _minecraftStatusProcessor.ProcessStatusAsync(guild);
                 await _conanStatusProcessor.ProcessStatusAsync(guild);
@@ -84,7 +87,7 @@ namespace PlayerCountBot
 
             if (currentChannel == null)
             {
-                var minecraftChannel = await guild.CreateVoiceChannelAsync($"MAG {channelName} Connecting", (vcp) =>
+                var minecraftChannel = await guild.CreateVoiceChannelAsync($"{channelName} Connecting", (vcp) =>
                 {
                     vcp.CategoryId = categoryChannel.Id;
                 });

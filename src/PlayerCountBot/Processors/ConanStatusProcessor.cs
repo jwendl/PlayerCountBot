@@ -26,8 +26,9 @@ namespace PlayerCountBot.Processors
         public async Task ProcessStatusAsync(SocketGuild guild)
         {
             var channelName = "MAG Conan";
+            _logger.LogInformation("Running processor for {Name}", channelName);
 
-            var conanClient = RconClient.Create(_conanSettings.IpAddress, _conanSettings.Port ?? 0);
+            var conanClient = RconClient.Create(_conanSettings.IpAddress, _conanSettings.Port);
             await conanClient.ConnectAsync();
 
             var authenticated = await conanClient.AuthenticateAsync(_conanSettings.RconPassword);

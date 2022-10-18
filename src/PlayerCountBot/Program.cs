@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using PlayerCountBot;
 using PlayerCountBot.Clients.Rust;
 using PlayerCountBot.Processors;
@@ -36,10 +37,13 @@ serviceCollection.Configure<RustSettings>(configuration.GetSection(nameof(RustSe
 
 var serviceProvider = serviceCollection.BuildServiceProvider();
 
+var discordOptions = serviceProvider.GetRequiredService<IOptions<DiscordSettings>>();
+var discordSettings = discordOptions.Value;
+
 var gameServerBot = serviceProvider.GetRequiredService<IGameServerBot>();
 await gameServerBot.LoginAndStartAsync();
 
-var timer = new Timer(10000);
+var timer = new Timer(TimeSpan.FromSeconds(discordSettings.PollInterval).TotalMilliseconds);
 timer.Elapsed += gameServerBot.PollInterval;
 timer.Start();
 

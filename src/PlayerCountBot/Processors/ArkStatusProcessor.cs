@@ -26,8 +26,9 @@ namespace PlayerCountBot.Processors
         public async Task ProcessStatusAsync(SocketGuild guild)
         {
             var channelName = "MAG Ark";
+            _logger.LogInformation("Running processor for {Name}", channelName);
 
-            var arkClient = RconClient.Create(_arkSettings.IpAddress, _arkSettings.Port ?? 0);
+            var arkClient = RconClient.Create(_arkSettings.IpAddress, _arkSettings.Port);
             await arkClient.ConnectAsync();
 
             var authenticated = await arkClient.AuthenticateAsync(_arkSettings.RconPassword);

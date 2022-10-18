@@ -28,6 +28,8 @@ namespace PlayerCountBot.Processors
         public async Task ProcessStatusAsync(SocketGuild guild)
         {
             var channelName = "MAG Minecraft";
+            _logger.LogInformation("Running processor for {Name}", channelName);
+
             var minecraftClient = new MinecraftClient(_minecraftSettings?.IpAddress!, _minecraftSettings?.Port ?? 0);
             if (!minecraftClient.Authenticate(_minecraftSettings?.RconPassword ?? string.Empty))
             {

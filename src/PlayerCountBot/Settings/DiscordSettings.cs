@@ -2,6 +2,8 @@
 {
     public class DiscordSettings
     {
-        public string? Token { get; set; }
+        public int PollInterval { get; set; }
+
+        public string Token { get; set; } = default!;
     }
 }
