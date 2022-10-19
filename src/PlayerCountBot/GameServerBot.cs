@@ -80,11 +80,23 @@ namespace PlayerCountBot
                     await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Rust");
                     await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Factorio");
 
-                    await _minecraftStatusProcessor.ProcessStatusAsync(categoryChannel!);
-                    await _conanStatusProcessor.ProcessStatusAsync(categoryChannel!);
-                    await _rustStatusProcessor.ProcessStatusAsync(categoryChannel!);
-                    await _arkStatusProcessor.ProcessStatusAsync(categoryChannel!);
-                    await _factorioStatusProcessor.ProcessStatusAsync(categoryChannel!);
+                    var tasks = new List<Task>()
+                    {
+                        _minecraftStatusProcessor.ProcessStatusAsync(categoryChannel!),
+                        _conanStatusProcessor.ProcessStatusAsync(categoryChannel!),
+                        _rustStatusProcessor.ProcessStatusAsync(categoryChannel!),
+                        _arkStatusProcessor.ProcessStatusAsync(categoryChannel!),
+                        _factorioStatusProcessor.ProcessStatusAsync(categoryChannel!),
+                    };
+
+                    await Task.WhenAll(tasks)
+                        .ContinueWith((task) =>
+                        {
+                            foreach (var exception in task?.Exception?.InnerExceptions!)
+                            {
+                                _logger.LogError(exception, "[GameServerBot] {Message}", exception.Message);
+                            }
+                        }, TaskContinuationOptions.OnlyOnFaulted);
                 }
             }
         }

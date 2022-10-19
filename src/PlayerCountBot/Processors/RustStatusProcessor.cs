@@ -28,7 +28,7 @@ namespace PlayerCountBot.Processors
 
         public async Task ProcessStatusAsync(SocketCategoryChannel socketCategoryChannel)
         {
-            var channelName = "MAG Rust";
+            var channelName = "Rust";
             _logger.LogInformation("Running processor for {Name}", channelName);
 
             _rustClient.Connect(_rustSettings.IpAddress!, _rustSettings.Port, _rustSettings.RconPassword!);
