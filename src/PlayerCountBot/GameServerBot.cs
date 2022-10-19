@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PlayerCountBot.Processors;
 using PlayerCountBot.Settings;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace PlayerCountBot
@@ -89,14 +90,17 @@ namespace PlayerCountBot
                         _factorioStatusProcessor.ProcessStatusAsync(categoryChannel!),
                     };
 
-                    await Task.WhenAll(tasks)
-                        .ContinueWith((task) =>
+                    try
+                    {
+                        await Task.WhenAll(tasks);
+                    }
+                    catch (AggregateException aggregateException)
+                    {
+                        foreach (var exception in aggregateException?.InnerExceptions!)
                         {
-                            foreach (var exception in task?.Exception?.InnerExceptions!)
-                            {
-                                _logger.LogError(exception, "[GameServerBot] {Message}", exception.Message);
-                            }
-                        }, TaskContinuationOptions.OnlyOnFaulted);
+                            _logger.LogError(exception, "[GameServerBot] {Message}", exception.Message);
+                        }
+                    }
                 }
             }
         }
