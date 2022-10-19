@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PlayerCountBot.Processors;
 using PlayerCountBot.Settings;
+using System;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -100,6 +101,10 @@ namespace PlayerCountBot
                         {
                             _logger.LogError(exception, "[GameServerBot] {Message}", exception.Message);
                         }
+                    }
+                    catch (TaskCanceledException taskCanceledException)
+                    {
+                        _logger.LogError(taskCanceledException, "[GameServerBot] {Message}", taskCanceledException.Message);
                     }
                 }
             }
