@@ -74,17 +74,17 @@ namespace PlayerCountBot
                     }
                     categoryChannel = guild.CategoryChannels.Where(scc => scc.Name.Contains("MAG Servers", StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
-                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Minecraft");
-                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Ark");
-                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Conan");
-                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Rust");
-                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Factorio");
+                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Minecraft");
+                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Ark");
+                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Conan");
+                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Rust");
+                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Factorio");
 
-                    await _minecraftStatusProcessor.ProcessStatusAsync(guild);
-                    await _conanStatusProcessor.ProcessStatusAsync(guild);
-                    await _rustStatusProcessor.ProcessStatusAsync(guild);
-                    await _arkStatusProcessor.ProcessStatusAsync(guild);
-                    await _factorioStatusProcessor.ProcessStatusAsync(guild);
+                    await _minecraftStatusProcessor.ProcessStatusAsync(categoryChannel!);
+                    await _conanStatusProcessor.ProcessStatusAsync(categoryChannel!);
+                    await _rustStatusProcessor.ProcessStatusAsync(categoryChannel!);
+                    await _arkStatusProcessor.ProcessStatusAsync(categoryChannel!);
+                    await _factorioStatusProcessor.ProcessStatusAsync(categoryChannel!);
                 }
             }
         }
@@ -95,7 +95,7 @@ namespace PlayerCountBot
 
             if (currentChannel == null)
             {
-                var minecraftChannel = await guild.CreateVoiceChannelAsync($"{channelName} Connecting", (vcp) =>
+                await guild.CreateVoiceChannelAsync($"{channelName} Connecting", (vcp) =>
                 {
                     vcp.CategoryId = categoryChannel.Id;
                 });

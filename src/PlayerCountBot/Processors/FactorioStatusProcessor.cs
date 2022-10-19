@@ -9,7 +9,7 @@ namespace PlayerCountBot.Processors
 {
     public interface IFactorioStatusProcessor
     {
-        Task ProcessStatusAsync(SocketGuild guild);
+        Task ProcessStatusAsync(SocketCategoryChannel socketCategoryChannel);
     }
 
     public class FactorioStatusProcessor
@@ -24,9 +24,9 @@ namespace PlayerCountBot.Processors
             _factorioSettings = factorioOptions.Value;
         }
 
-        public async Task ProcessStatusAsync(SocketGuild guild)
+        public async Task ProcessStatusAsync(SocketCategoryChannel socketCategoryChannel)
         {
-            var channelName = "MAG Factorio";
+            var channelName = "Factorio";
             _logger.LogInformation("Running processor for {Name}", channelName);
 
             var factorioClient = RconClient.Create(_factorioSettings.IpAddress, _factorioSettings.Port);
@@ -37,9 +37,8 @@ namespace PlayerCountBot.Processors
             {
                 _logger.LogError("[FactorioStatusProcessor] Couldn't login to Conan RCON");
 
-                var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
-                var guildChannel = guild.GetChannel(channel.Id);
-                await guildChannel.ModifyAsync(gcp =>
+                var categoryChannel = socketCategoryChannel.Channels.Where(scc => scc.Name.Contains(channelName)).First();
+                await categoryChannel.ModifyAsync(gcp =>
                 {
                     gcp.Name = $"{channelName} Error";
                 });
@@ -54,11 +53,10 @@ namespace PlayerCountBot.Processors
                 var match = regex.Match(factorioResponse);
                 currentPlayers = match.Groups["CurrentPlayers"].Value;
 
-                var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
-                var guildChannel = guild.GetChannel(channel.Id);
-                await guildChannel.ModifyAsync(gcp =>
+                var categoryChannel = socketCategoryChannel.Channels.Where(scc => scc.Name.Contains(channelName)).First();
+                await categoryChannel.ModifyAsync(gcp =>
                 {
-                    gcp.Name = $"{channelName} {currentPlayers}/{maxPlayers}";
+                    gcp.Name = $"{currentPlayers}/{maxPlayers} {channelName}";
                 });
             }
         }

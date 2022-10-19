@@ -10,7 +10,7 @@ namespace PlayerCountBot.Processors
 {
     public interface IMinecraftStatusProcessor
     {
-        Task ProcessStatusAsync(SocketGuild guild);
+        Task ProcessStatusAsync(SocketCategoryChannel socketCategoryChannel);
     }
 
     public class MinecraftStatusProcessor
@@ -25,9 +25,9 @@ namespace PlayerCountBot.Processors
             _minecraftSettings = minecraftOptions.Value;
         }
 
-        public async Task ProcessStatusAsync(SocketGuild guild)
+        public async Task ProcessStatusAsync(SocketCategoryChannel socketCategoryChannel)
         {
-            var channelName = "MAG Minecraft";
+            var channelName = "Minecraft";
             _logger.LogInformation("Running processor for {Name}", channelName);
 
             var minecraftClient = new MinecraftClient(_minecraftSettings?.IpAddress!, _minecraftSettings?.Port ?? 0);
@@ -35,9 +35,8 @@ namespace PlayerCountBot.Processors
             {
                 _logger.LogError("[MinecraftStatusProcessor] Couldn't login to Minecraft RCON");
 
-                var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
-                var guildChannel = guild.GetChannel(channel.Id);
-                await guildChannel.ModifyAsync(gcp =>
+                var categoryChannel = socketCategoryChannel.Channels.Where(scc => scc.Name.Contains(channelName)).First();
+                await categoryChannel.ModifyAsync(gcp =>
                 {
                     gcp.Name = $"{channelName} Error";
                 });
@@ -48,25 +47,23 @@ namespace PlayerCountBot.Processors
                 {
                     _logger.LogError("[MinecraftStatusProcessor] Couldn't send 'list' command to Minecraft RCON");
 
-                    var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
-                    var guildChannel = guild.GetChannel(channel.Id);
-                    await guildChannel.ModifyAsync(gcp =>
+                    var categoryChannel = socketCategoryChannel.Channels.Where(scc => scc.Name.Contains(channelName)).First();
+                    await categoryChannel.ModifyAsync(gcp =>
                     {
                         gcp.Name = $"{channelName} Error";
                     });
                 }
                 else
                 {
-                    var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
-                    var guildChannel = guild.GetChannel(channel.Id);
-                    await guildChannel.ModifyAsync(gcp =>
+                    var categoryChannel = socketCategoryChannel.Channels.Where(scc => scc.Name.Contains(channelName)).First();
+                    await categoryChannel.ModifyAsync(gcp =>
                     {
                         var minecraftResponse = minecraftMessage.Body;
                         var regex = new Regex("§6There are §c(?<CurrentPlayers>\\d+)§6 out of maximum §c(?<MaxPlayers>\\d+)§6 players online.");
                         var match = regex.Match(minecraftResponse);
                         var currentPlayers = match.Groups["CurrentPlayers"].Value;
                         var maxPlayers = match.Groups["MaxPlayers"].Value;
-                        gcp.Name = $"{channelName} {currentPlayers}/{maxPlayers}";
+                        gcp.Name = $"{currentPlayers}/{maxPlayers} {channelName}";
                     });
                 }
             }

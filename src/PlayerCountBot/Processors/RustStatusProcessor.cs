@@ -9,7 +9,7 @@ namespace PlayerCountBot.Processors
 {
     public interface IRustStatusProcessor
     {
-        Task ProcessStatusAsync(SocketGuild guild);
+        Task ProcessStatusAsync(SocketCategoryChannel socketCategoryChannel);
     }
 
     public class RustStatusProcessor
@@ -26,7 +26,7 @@ namespace PlayerCountBot.Processors
             _rustSettings = rustOptions.Value;
         }
 
-        public async Task ProcessStatusAsync(SocketGuild guild)
+        public async Task ProcessStatusAsync(SocketCategoryChannel socketCategoryChannel)
         {
             var channelName = "MAG Rust";
             _logger.LogInformation("Running processor for {Name}", channelName);
@@ -35,11 +35,13 @@ namespace PlayerCountBot.Processors
 
             _rustClient.SendCommand(new GetServerInformation(async (serverInfo) =>
             {
-                var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
-                var guildChannel = guild.GetChannel(channel.Id);
-                await guildChannel.ModifyAsync(gcp =>
+                var currentPlayers = serverInfo.Players;
+                var maxPlayers = serverInfo.MaxPlayers;
+
+                var categoryChannel = socketCategoryChannel.Channels.Where(scc => scc.Name.Contains(channelName)).First();
+                await categoryChannel.ModifyAsync(gcp =>
                 {
-                    gcp.Name = $"{channelName} {serverInfo.Players}/{serverInfo.MaxPlayers}";
+                    gcp.Name = $"{currentPlayers}/{maxPlayers} {channelName}";
                 });
             }));
 

@@ -8,7 +8,7 @@ namespace PlayerCountBot.Processors
 {
     public interface IArkStatusProcessor
     {
-        Task ProcessStatusAsync(SocketGuild guild);
+        Task ProcessStatusAsync(SocketCategoryChannel socketCategoryChannel);
     }
 
     public class ArkStatusProcessor
@@ -23,9 +23,9 @@ namespace PlayerCountBot.Processors
             _arkSettings = arkOptions.Value;
         }
 
-        public async Task ProcessStatusAsync(SocketGuild guild)
+        public async Task ProcessStatusAsync(SocketCategoryChannel socketCategoryChannel)
         {
-            var channelName = "MAG Ark";
+            var channelName = "Ark";
             _logger.LogInformation("Running processor for {Name}", channelName);
 
             var arkClient = RconClient.Create(_arkSettings.IpAddress, _arkSettings.Port);
@@ -36,9 +36,8 @@ namespace PlayerCountBot.Processors
             {
                 _logger.LogError("[ArkStatusProcessor] Couldn't login to Ark RCON");
 
-                var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
-                var guildChannel = guild.GetChannel(channel.Id);
-                await guildChannel.ModifyAsync(gcp =>
+                var categoryChannel = socketCategoryChannel.Channels.Where(scc => scc.Name.Contains(channelName)).First();
+                await categoryChannel.ModifyAsync(gcp =>
                 {
                     gcp.Name = $"{channelName} Error";
                 });
@@ -50,11 +49,10 @@ namespace PlayerCountBot.Processors
                 var arkResponse = await arkClient.ExecuteCommandAsync("listplayers");
                 if (arkResponse.Contains("No Players Connected"))
                 {
-                    var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
-                    var guildChannel = guild.GetChannel(channel.Id);
-                    await guildChannel.ModifyAsync(gcp =>
+                    var categoryChannel = socketCategoryChannel.Channels.Where(scc => scc.Name.Contains(channelName)).First();
+                    await categoryChannel.ModifyAsync(gcp =>
                     {
-                        gcp.Name = $"{channelName} {currentPlayers}/{maxPlayers}";
+                        gcp.Name = $"{currentPlayers}/{maxPlayers} {channelName}";
                     });
                 }
                 else
@@ -63,11 +61,10 @@ namespace PlayerCountBot.Processors
                     currentPlayers = lines.Length - 2;
                     if (currentPlayers < 0) currentPlayers = 0;
 
-                    var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
-                    var guildChannel = guild.GetChannel(channel.Id);
-                    await guildChannel.ModifyAsync(gcp =>
+                    var categoryChannel = socketCategoryChannel.Channels.Where(scc => scc.Name.Contains(channelName)).First();
+                    await categoryChannel.ModifyAsync(gcp =>
                     {
-                        gcp.Name = $"{channelName} {currentPlayers}/{maxPlayers}";
+                        gcp.Name = $"{currentPlayers}/{maxPlayers} {channelName}";
                     });
                 }
             }

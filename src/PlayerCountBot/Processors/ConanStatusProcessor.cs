@@ -8,7 +8,7 @@ namespace PlayerCountBot.Processors
 {
     public interface IConanStatusProcessor
     {
-        Task ProcessStatusAsync(SocketGuild guild);
+        Task ProcessStatusAsync(SocketCategoryChannel socketCategoryChannel);
     }
 
     public class ConanStatusProcessor
@@ -23,9 +23,9 @@ namespace PlayerCountBot.Processors
             _conanSettings = conanOptions.Value;
         }
 
-        public async Task ProcessStatusAsync(SocketGuild guild)
+        public async Task ProcessStatusAsync(SocketCategoryChannel socketCategoryChannel)
         {
-            var channelName = "MAG Conan";
+            var channelName = "Conan";
             _logger.LogInformation("Running processor for {Name}", channelName);
 
             var conanClient = RconClient.Create(_conanSettings.IpAddress, _conanSettings.Port);
@@ -36,9 +36,8 @@ namespace PlayerCountBot.Processors
             {
                 _logger.LogError("[ConanStatusProcessor] Couldn't login to Conan RCON");
 
-                var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
-                var guildChannel = guild.GetChannel(channel.Id);
-                await guildChannel.ModifyAsync(gcp =>
+                var categoryChannel = socketCategoryChannel.Channels.Where(scc => scc.Name.Contains(channelName)).First();
+                await categoryChannel.ModifyAsync(gcp =>
                 {
                     gcp.Name = $"{channelName} Error";
                 });
@@ -51,11 +50,10 @@ namespace PlayerCountBot.Processors
                 var lines = listPlayersResponse.Split('\n');
                 if (lines.Length == 2)
                 {
-                    var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
-                    var guildChannel = guild.GetChannel(channel.Id);
-                    await guildChannel.ModifyAsync(gcp =>
+                    var categoryChannel = socketCategoryChannel.Channels.Where(scc => scc.Name.Contains(channelName)).First();
+                    await categoryChannel.ModifyAsync(gcp =>
                     {
-                        gcp.Name = $"{channelName} {currentPlayers}/{maxPlayers}";
+                        gcp.Name = $"{currentPlayers}/{maxPlayers} {channelName}";
                     });
                 }
                 else
@@ -63,11 +61,10 @@ namespace PlayerCountBot.Processors
                     currentPlayers = lines.Length - 2;
                     if (currentPlayers < 0) currentPlayers = 0;
 
-                    var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
-                    var guildChannel = guild.GetChannel(channel.Id);
-                    await guildChannel.ModifyAsync(gcp =>
+                    var categoryChannel = socketCategoryChannel.Channels.Where(scc => scc.Name.Contains(channelName)).First();
+                    await categoryChannel.ModifyAsync(gcp =>
                     {
-                        gcp.Name = $"{channelName} {currentPlayers}/{maxPlayers}";
+                        gcp.Name = $"{currentPlayers}/{maxPlayers} {channelName}";
                     });
                 }
             }
