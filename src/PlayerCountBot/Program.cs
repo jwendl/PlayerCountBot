@@ -1,5 +1,3 @@
-﻿// Install bot with https://discord.com/api/oauth2/authorize?client_id=1031378783489495071&permissions=16&scope=bot%20applications.commands
-using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
