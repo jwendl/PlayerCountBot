@@ -47,8 +47,8 @@ namespace PlayerCountBot.Processors
             {
                 var currentPlayers = 0;
                 var maxPlayers = 70;
-                var listPlayersResponse = await arkClient.ExecuteCommandAsync("listplayers");
-                if (listPlayersResponse.Contains("No Players Connected"))
+                var arkResponse = await arkClient.ExecuteCommandAsync("listplayers");
+                if (arkResponse.Contains("No Players Connected"))
                 {
                     var channel = guild.Channels.Where(scc => scc.Name.StartsWith(channelName)).First();
                     var guildChannel = guild.GetChannel(channel.Id);
@@ -59,7 +59,7 @@ namespace PlayerCountBot.Processors
                 }
                 else
                 {
-                    var lines = listPlayersResponse.Split('\n');
+                    var lines = arkResponse.Split('\n');
                     currentPlayers = lines.Length - 2;
                     if (currentPlayers < 0) currentPlayers = 0;
 

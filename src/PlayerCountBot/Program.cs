@@ -1,4 +1,5 @@
 ﻿// Install bot with https://discord.com/api/oauth2/authorize?client_id=1031378783489495071&permissions=16&scope=bot%20applications.commands
+using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,10 +17,12 @@ var configuration = new ConfigurationBuilder()
     .Build();
 
 var serviceCollection = new ServiceCollection();
+serviceCollection.AddSingleton<DiscordSocketClient>();
 serviceCollection.AddSingleton<IRustClient, RustClient>();
 
 serviceCollection.AddSingleton<IGameServerBot, GameServerBot>();
 serviceCollection.AddSingleton<IMinecraftStatusProcessor, MinecraftStatusProcessor>();
+serviceCollection.AddSingleton<IFactorioStatusProcessor, FactorioStatusProcessor>();
 serviceCollection.AddSingleton<IConanStatusProcessor, ConanStatusProcessor>();
 serviceCollection.AddSingleton<IRustStatusProcessor, RustStatusProcessor>();
 serviceCollection.AddSingleton<IArkStatusProcessor, ArkStatusProcessor>();
@@ -30,10 +33,12 @@ serviceCollection.AddLogging(builder =>
 });
 
 serviceCollection.Configure<DiscordSettings>(configuration.GetSection(nameof(DiscordSettings)));
+
 serviceCollection.Configure<MinecraftSettings>(configuration.GetSection(nameof(MinecraftSettings)));
-serviceCollection.Configure<ArkSettings>(configuration.GetSection(nameof(ArkSettings)));
+serviceCollection.Configure<FactorioSettings>(configuration.GetSection(nameof(FactorioSettings)));
 serviceCollection.Configure<ConanSettings>(configuration.GetSection(nameof(ConanSettings)));
 serviceCollection.Configure<RustSettings>(configuration.GetSection(nameof(RustSettings)));
+serviceCollection.Configure<ArkSettings>(configuration.GetSection(nameof(ArkSettings)));
 
 var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -46,5 +51,8 @@ await gameServerBot.LoginAndStartAsync();
 var timer = new Timer(TimeSpan.FromSeconds(discordSettings.PollInterval).TotalMilliseconds);
 timer.Elapsed += gameServerBot.PollInterval;
 timer.Start();
+
+var discordSocketClient = serviceProvider.GetRequiredService<DiscordSocketClient>();
+var processor = serviceProvider.GetRequiredService<IFactorioStatusProcessor>();
 
 await Task.Delay(-1);

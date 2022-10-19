@@ -2,7 +2,6 @@
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using PlayerCountBot.Clients.Rust.Commands.Messages;
 using PlayerCountBot.Processors;
 using PlayerCountBot.Settings;
 using System.Timers;
@@ -24,22 +23,26 @@ namespace PlayerCountBot
         private readonly IConanStatusProcessor _conanStatusProcessor;
         private readonly IRustStatusProcessor _rustStatusProcessor;
         private readonly IArkStatusProcessor _arkStatusProcessor;
+        private readonly IFactorioStatusProcessor _factorioStatusProcessor;
         private readonly ILogger<GameServerBot> _logger;
 
         public GameServerBot(
             IOptions<DiscordSettings> discordOptions,
+            DiscordSocketClient discordSocketClient,
             IMinecraftStatusProcessor minecraftStatusProcessor,
             IConanStatusProcessor conanStatusProcessor,
             IRustStatusProcessor rustStatusProcessor,
             IArkStatusProcessor arkStatusProcessor,
+            IFactorioStatusProcessor factorioStatusProcessor,
             ILogger<GameServerBot> logger)
         {
-            _discordSocketClient = new DiscordSocketClient();
+            _discordSocketClient = discordSocketClient;
             _discordSettings = discordOptions.Value;
             _minecraftStatusProcessor = minecraftStatusProcessor;
             _conanStatusProcessor = conanStatusProcessor;
             _rustStatusProcessor = rustStatusProcessor;
             _arkStatusProcessor = arkStatusProcessor;
+            _factorioStatusProcessor = factorioStatusProcessor;
             _logger = logger;
         }
 
@@ -56,7 +59,8 @@ namespace PlayerCountBot
             if (_discordSocketClient.ConnectionState == ConnectionState.Connected && _discordSocketClient.LoginState == LoginState.LoggedIn)
             {
                 var guild = _discordSocketClient.Guilds.Where(g => g.Name == "Middle Aged Gaming").FirstOrDefault();
-                if (guild != null) {
+                if (guild != null)
+                {
                     _logger.LogInformation("Using guild {Name} with Id {Id}", guild.Name, guild.Id);
 
                     var categoryChannel = guild.CategoryChannels.Where(scc => scc.Name.Contains("MAG Servers", StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
@@ -74,11 +78,13 @@ namespace PlayerCountBot
                     await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Ark");
                     await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Conan");
                     await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Rust");
+                    await CreateOrUpdateChannelAsync(guild, categoryChannel!, "MAG Factorio");
 
                     await _minecraftStatusProcessor.ProcessStatusAsync(guild);
                     await _conanStatusProcessor.ProcessStatusAsync(guild);
                     await _rustStatusProcessor.ProcessStatusAsync(guild);
                     await _arkStatusProcessor.ProcessStatusAsync(guild);
+                    await _factorioStatusProcessor.ProcessStatusAsync(guild);
                 }
             }
         }

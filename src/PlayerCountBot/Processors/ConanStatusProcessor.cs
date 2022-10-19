@@ -17,10 +17,10 @@ namespace PlayerCountBot.Processors
         private readonly ILogger<ConanStatusProcessor> _logger;
         private readonly ConanSettings _conanSettings;
 
-        public ConanStatusProcessor(ILogger<ConanStatusProcessor> logger, IOptions<ConanSettings> conanSettings)
+        public ConanStatusProcessor(ILogger<ConanStatusProcessor> logger, IOptions<ConanSettings> conanOptions)
         {
             _logger = logger;
-            _conanSettings = conanSettings.Value;
+            _conanSettings = conanOptions.Value;
         }
 
         public async Task ProcessStatusAsync(SocketGuild guild)
