@@ -4,8 +4,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PlayerCountBot.Processors;
 using PlayerCountBot.Settings;
-using System;
-using System.Threading.Tasks;
 using System.Timers;
 
 namespace PlayerCountBot
@@ -82,17 +80,17 @@ namespace PlayerCountBot
                     await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Rust");
                     await CreateOrUpdateChannelAsync(guild, categoryChannel!, "Factorio");
 
-                    var tasks = new List<Task>()
-                    {
-                        _minecraftStatusProcessor.ProcessStatusAsync(categoryChannel!),
-                        _conanStatusProcessor.ProcessStatusAsync(categoryChannel!),
-                        _rustStatusProcessor.ProcessStatusAsync(categoryChannel!),
-                        _arkStatusProcessor.ProcessStatusAsync(categoryChannel!),
-                        _factorioStatusProcessor.ProcessStatusAsync(categoryChannel!),
-                    };
-
                     try
                     {
+                        var tasks = new List<Task>()
+                        {
+                            _minecraftStatusProcessor.ProcessStatusAsync(categoryChannel!),
+                            _conanStatusProcessor.ProcessStatusAsync(categoryChannel!),
+                            _rustStatusProcessor.ProcessStatusAsync(categoryChannel!),
+                            _arkStatusProcessor.ProcessStatusAsync(categoryChannel!),
+                            _factorioStatusProcessor.ProcessStatusAsync(categoryChannel!),
+                        };
+
                         await Task.WhenAll(tasks);
                     }
                     catch (AggregateException aggregateException)
@@ -102,9 +100,9 @@ namespace PlayerCountBot
                             _logger.LogError(exception, "[GameServerBot] {Message}", exception.Message);
                         }
                     }
-                    catch (TaskCanceledException taskCanceledException)
+                    catch (Exception exception)
                     {
-                        _logger.LogError(taskCanceledException, "[GameServerBot] {Message}", taskCanceledException.Message);
+                        _logger.LogError(exception, "[GameServerBot] {Message}", exception.Message);
                     }
                 }
             }
