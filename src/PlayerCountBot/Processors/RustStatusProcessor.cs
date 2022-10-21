@@ -19,7 +19,7 @@ namespace PlayerCountBot.Processors
         private readonly RustSettings _rustSettings;
         private readonly IRustClient _rustClient;
 
-        public RustStatusProcessor(ILogger<RustStatusProcessor> logger,IRustClient rustClient, IOptions<RustSettings> rustOptions)
+        public RustStatusProcessor(ILogger<RustStatusProcessor> logger, IRustClient rustClient, IOptions<RustSettings> rustOptions)
         {
             _logger = logger;
             _rustClient = rustClient;
@@ -44,6 +44,8 @@ namespace PlayerCountBot.Processors
                     gcp.Name = $"{currentPlayers}/{maxPlayers} {channelName}";
                 });
             }));
+
+            _rustClient.Disconnect();
 
             await Task.FromResult(1);
         }

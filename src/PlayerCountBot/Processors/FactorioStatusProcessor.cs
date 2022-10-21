@@ -59,6 +59,8 @@ namespace PlayerCountBot.Processors
                     gcp.Name = $"{currentPlayers}/{maxPlayers} {channelName}";
                 });
             }
+
+            factorioClient.Disconnect();
         }
     }
 }

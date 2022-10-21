@@ -67,6 +67,8 @@ namespace PlayerCountBot.Processors
                     });
                 }
             }
+
+            minecraftClient.Close();
         }
     }
 }

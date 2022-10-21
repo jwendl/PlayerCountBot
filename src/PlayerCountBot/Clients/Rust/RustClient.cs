@@ -13,6 +13,8 @@ namespace PlayerCountBot.Clients.Rust
     {
         void Connect(string hostName, int port, string password);
 
+        void Disconnect();
+
         void SendCommand(BaseCommand command);
     }
 
@@ -48,6 +50,11 @@ namespace PlayerCountBot.Clients.Rust
             {
                 _logger.LogError(exception, "[RustClient] {Message}", exception.Message);
             }
+        }
+
+        public void Disconnect()
+        {
+            _client?.Close();
         }
 
         public void SendCommand(BaseCommand baseCommand)

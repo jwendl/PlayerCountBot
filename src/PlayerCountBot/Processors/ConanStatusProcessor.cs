@@ -68,6 +68,8 @@ namespace PlayerCountBot.Processors
                     });
                 }
             }
+
+            conanClient.Disconnect();
         }
     }
 }
