@@ -45,8 +45,6 @@ namespace PlayerCountBot.Processors
                 });
             }));
 
-            _rustClient.Disconnect();
-
             await Task.FromResult(1);
         }
     }
