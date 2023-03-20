@@ -16,15 +16,16 @@ var configuration = new ConfigurationBuilder()
     .Build();
 
 var serviceCollection = new ServiceCollection();
-serviceCollection.AddSingleton<DiscordSocketClient>();
 serviceCollection.AddSingleton<IRustClient, RustClient>();
 
-serviceCollection.AddSingleton<IGameServerBot, GameServerBot>();
 serviceCollection.AddSingleton<IMinecraftStatusProcessor, MinecraftStatusProcessor>();
 serviceCollection.AddSingleton<IFactorioStatusProcessor, FactorioStatusProcessor>();
 serviceCollection.AddSingleton<IConanStatusProcessor, ConanStatusProcessor>();
 serviceCollection.AddSingleton<IRustStatusProcessor, RustStatusProcessor>();
 serviceCollection.AddSingleton<IArkStatusProcessor, ArkStatusProcessor>();
+
+serviceCollection.AddTransient<DiscordSocketClient>();
+serviceCollection.AddTransient<IGameServerBot, GameServerBot>();
 
 serviceCollection.AddLogging(builder =>
 {
@@ -44,14 +45,14 @@ var serviceProvider = serviceCollection.BuildServiceProvider();
 var discordOptions = serviceProvider.GetRequiredService<IOptions<DiscordSettings>>();
 var discordSettings = discordOptions.Value;
 
-var gameServerBot = serviceProvider.GetRequiredService<IGameServerBot>();
-await gameServerBot.LoginAndStartAsync();
+foreach (var discordBot in discordSettings.DiscordBots!)
+{
+	var gameServerBot = serviceProvider.GetRequiredService<IGameServerBot>();
+	await gameServerBot.LoginAndStartAsync(discordBot.Name, discordBot.Token, discordBot.ChannelName);
 
-var timer = new Timer(TimeSpan.FromSeconds(discordSettings.PollInterval).TotalMilliseconds);
-timer.Elapsed += gameServerBot.PollInterval;
-timer.Start();
-
-var discordSocketClient = serviceProvider.GetRequiredService<DiscordSocketClient>();
-var processor = serviceProvider.GetRequiredService<IFactorioStatusProcessor>();
+	var timer = new Timer(TimeSpan.FromSeconds(discordSettings.PollInterval).TotalMilliseconds);
+	timer.Elapsed += gameServerBot.PollInterval;
+	timer.Start();
+}
 
 await Task.Delay(-1);
